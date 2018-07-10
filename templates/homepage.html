@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Homepage{% endblock %}
+{% block content %}
+
+  <div class="container">
+    <h3>Homepage</h3>
+    <p><a href="/login">Login</a></p><br>
+    <p><a href="/sign_up"><button>Sign Up</button></a></p><br>
+    <form action="/search">
+    <input type="text" placeholder="Search.." name="search">
+    <button type="submit"><i class="fa fa-search"></i></button>
+    </form>
+
+  
+</div>
+
+     
+
+
+{% endblock %}
+
+
