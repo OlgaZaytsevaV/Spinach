@@ -1,5 +1,12 @@
 {% extends "base.html" %}
-{% block title %}indiv_result{% endblock %}
+{% block title %}Individual result{% endblock %}
 {% block content %}
-<h3>Show individual result</h3>
+
+<form action='/results'>
+<div class="container">
+<h3>{{yelp_id}}</h3>
+<ul>
+    <li>Yelp id</li>
 {% endblock %}
+
+

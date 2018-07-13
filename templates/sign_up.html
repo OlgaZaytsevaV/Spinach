@@ -1,13 +1,18 @@
 {% extends "base.html" %}
-{% block title %}login{% endblock %}
+{% block title %}sign_up{% endblock %}
 {% block content %}
 
 
-<form action="/sign_up">
+<form action="/sign_up" method='POST'>
   <div class="container">
     <h1>Sign Up</h1>
     <p>Please fill in this form to create an account.</p>
-    <hr> 
+    
+    <div class="input-container">
+    <i class="fa fa-user icon"></i>
+    <input class="input-field" type="text" placeholder="Name" name="name" required>
+</div>
+
 
     <div class="input-container">
     <i class="fa fa-envelope icon"></i>
@@ -16,12 +21,12 @@
 
     <div class="input-container">
     <i class="fa fa-key icon"></i>
-    <input class="input-field" type="text" placeholder="Password" name="psw" required>
+    <input class="input-field" type="text" placeholder="Password" name="password" required>
 </div>
 
    <div class="input-container">
     <i class="fa fa-key icon"></i>
-    <input class="input-field" type="text" placeholder="Repeat password" name="rpsw" required>
+    <input class="input-field" type="text" placeholder="Repeat password" name="password2" required>
 </div>
     
     <button type="submit" class="btn">Sign Up</button>
