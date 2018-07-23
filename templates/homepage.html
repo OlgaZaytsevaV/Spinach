@@ -1,23 +1,37 @@
 {% extends "base.html" %}
 {% block title %}Homepage{% endblock %}
 {% block content %}
+<style>
 
-  <div class="container">
-    <h3>Homepage</h3>
-    <p><a href="/login">Login</a></p><br>
-    <p><a href="/sign_up"><button>Sign Up</button></a></p><br>
-    <form action="/search">
+body {
+    height: 100%;
+
+
+    /* The image used */
+    background-image: url("static/images/broccoli-1792236_1920.jpg");
+
+    /* Full height */
+    height: 100%; 
+
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+</style>
+<!-- <form id="search" action="/search " style="position: absolute;
+    left: 50%;
+    top: 50%; 
+    margin-left: -200px;
+    margin-top: 0px;">
     <input type="text" placeholder="Search.." name="search">
-    <input type="text" placeholder="Address" name="address">
-    <button type="submit"><i class="fa fa-search"></i></button>
-    </form>
-
+    <input type="text" placeholder="Near (City, or Zip Code)" name="address">
+    <button type="submit"><i class="glyphicon glyphicon-search"></i></button>
+</form>  
+ -->
   
-</div>
-
-     
-
-
 {% endblock %}
 
 

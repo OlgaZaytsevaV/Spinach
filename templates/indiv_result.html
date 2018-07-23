@@ -2,11 +2,97 @@
 {% block title %}Individual result{% endblock %}
 {% block content %}
 
-<form action='/results'>
+  
 <div class="container">
-<h3>{{yelp_id}}</h3>
+    <h2><b>{{name}}</b></h2>
 <ul>
-    <li>Yelp id</li>
-{% endblock %}
+    {% for i in categories %}
+        {{i['title']}}<br>
+    {% endfor %}
+</ul>
+    <h5>Yelp Rating: {{rating}}</h5>
+<ul>
+    {% for i in locations['display_address'] %}
+        {{"{}".format(i)}}
+    {% endfor %}
+</ul>
+    <h5>Hours of operation:</h5> 
+<ul>
+    {% for i in hours_strings %}
+        <li>{{ i }}</li>
+    {% endfor %}
+</ul>           
+    <h5><a href="tel:{{phone}}">{{phone}}</a></h5>
+<ul>
+    <form action="/save" id="myform" method="POST">
+        <input  type="text" id="name" value="{{name}}" name="name" hidden="hidden">
+        <input  type="text" id="yelp_id" value="{{yelp_id}}" name="yelp_id" hidden="hidden">
+        <button type="submit" id="savebutton" name="save" value="save">Save this place</button>
+    </form> 
 
+    <script>
+
+        // let button = document.querySelector("#myform");
+        // function alertClick(evt) {
+        //     alert("This place was added to your favorites");
+        //     // evt.preventDefault();
+        // }
+        // button.addEventListener('click', alertClick); 
+
+       
+        // let button = document.querySelector("#myform");  
+        function showAlert(results) {
+            alert(results);
+        } 
+
+        function submitPlace(evt) {
+            evt.preventDefault();
+            let formInputs = {
+                "yelp_id": $("#yelp_id").val(),
+                "name": $("#name").val(),
+            };    
+            $.post('/save', formInputs, showAlert);     
+            
+        }
+        $("#myform").on('submit', submitPlace);
+        //button.addEventListener('submit', submitPlace);
+        // select button
+        // add event listener to button with submitPlace as callback
+        // submit Place should make a post ajax request to the server.
+
+
+
+    </script>  
+</ul>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="star-rating">
+        <span class="fa fa-star-o" data-rating="1" data-clearable="remove"/></span>
+        <span class="fa fa-star-o" data-rating="2" data-clearable="remove"/></span>
+        <span class="fa fa-star-o" data-rating="3" data-clearable="remove"/></span>
+        <span class="fa fa-star-o" data-rating="4" data-clearable="remove"/></span>
+        <span class="fa fa-star-o" data-rating="5" data-clearable="remore"/></span>
+      </div>
+    </div>
+  </div>
+  <style>
+          .star-rating {
+          line-height:40px;
+          font-size:1.5em;
+        }
+        .star-rating .fa-star{color: yellow;}
+  </style>
+  <script>
+  // onclick change attributes
+   
+
+  </script>
+
+    <h5>Price:{{price}}</h5>
+    {% for i in photos %}
+        <li><img src ="{{i}}" style="width: 30%; height: 30%" /></li><br>
+    {% endfor %}
+    
+{% endblock %}
 

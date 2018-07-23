@@ -1,4 +1,24 @@
 {% extends "base.html" %}
 {% block title %}my_account{% endblock %}
 {% block content %}
-<h1>My account</h1>
+<h3>Hello, {{ user.name }}</h3>
+<h4> Here is your saved places:</h4>
+<table style="width:100%" text-align="center">
+<tr>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th></th>
+</tr>
+<!-- for loop goes here: one row per place, for place in places...-->
+{% for saved in user.saved %}
+<tr>    
+    <td>{{saved.place.name}}</td>
+    <td>{{saved.user_id}}</td>
+    <td>{{saved.save_date}}</td>
+    <td>{{saved.yelp_id}}</td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}
+ 

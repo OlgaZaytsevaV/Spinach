@@ -1,0 +1,26 @@
+
+
+#search {
+    position: absolute;
+    left: 50%;
+    top: 50%; 
+    margin-left: -150px;
+    margin-top: 0px;
+};
+
+body {
+    height: 100%;
+
+
+    /* The image used */
+    background-image: url("");
+
+    /* Full height */
+    height: 100%; 
+
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}

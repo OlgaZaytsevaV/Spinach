@@ -16,8 +16,8 @@ class Restaurants(db.Model):
 
     __tablename__ = 'places'
 
-    yelp_id = db.Column(db.Integer, primary_key = True,)
-    name=db.Column(db.String(100), nullable=False,)
+    yelp_id = db.Column(db.String(100), primary_key = True,)
+    name = db.Column(db.String(100), nullable=False,)
 
     ratings = db.relationship('Rating')
     saved = db.relationship('Saved_places')
@@ -32,12 +32,14 @@ class Rating(db.Model):
     __tablename__ = 'ratings'
 
     rating_id = db.Column(db.Integer, primary_key=True, autoincrement=True,)
-    user_id=db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    saved_place_id=db.Column(db.Integer, db.ForeignKey('saved.saved_place_id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     score=db.Column(db.Float, nullable=False,)
-    yelp_id=db.Column(db.Integer, db.ForeignKey('places.yelp_id'))
+    yelp_id=db.Column(db.String(25), db.ForeignKey('places.yelp_id'))
     num_vegan_dishes=db.Column(db.Integer, nullable=True,)
 
-    places = db.relationship('Restaurants')
+    place = db.relationship('Restaurants')
+    saved = db.relationship('Saved_places')
     user = db.relationship('User')
 
     def __repr__(self):
@@ -53,6 +55,10 @@ class User(db.Model):
     email = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(50), nullable=False)
 
+    saved = db.relationship('Saved_places')
+    ratings=db.relationship('Rating')
+
+
     def __repr__(self):
         return '<User %r>' % self.user_id
 
@@ -62,11 +68,14 @@ class Saved_places(db.Model):
 
     __tablename__ = 'saved'
 
-    user_id=db.Column(db.Integer, primary_key=True, autoincrement=True,)
-    yelp_id=db.Column(db.Integer, db.ForeignKey('places.yelp_id'))
+    saved_place_id=db.Column(db.Integer, primary_key=True, autoincrement=True,)
+    user_id=db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    yelp_id=db.Column(db.String(25), db.ForeignKey('places.yelp_id'))
     save_date=db.Column(db.Date, nullable=False,)
 
-    places = db.relationship('Restaurants')
+    ratings=db.relationship('Rating')
+    place = db.relationship('Restaurants')
+    user= db.relationship('User')
 
     def __repr__(self):
         return '<Saved_places %r>' % self.save_date
@@ -76,6 +85,7 @@ if __name__ == '__main__':
     
     from server import app
     connect_to_db(app, 'my_data')
+    db.create_all()
     print("Connected to DB.")
 
 

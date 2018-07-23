@@ -4,6 +4,10 @@ from sys import argv
 import requests
 from pprint import pprint, pformat
 import os
+from datetime import datetime
+from collections import defaultdict
+
+
 
 
 from jinja2 import StrictUndefined
@@ -13,18 +17,14 @@ from flask_debugtoolbar import DebugToolbarExtension
 from model import User, Rating, Restaurants, Saved_places, connect_to_db, db
 app = Flask(__name__)
 
+
 # Required to use Flask sessions and the debug toolbar
 app.secret_key = "SECRET"
 
-YELP_URL = 'https://api.yelp.com/v3/businesses/search'
+YELP_URL = 'https://api.yelp.com/v3/businesses/'
+# YELP_URL_ID= 'https://api.yelp.com/v3/businesses/{id}'
 API_KEY = os.environ['API_KEY']
-
-
-
-
 app.jinja_env.undefined = StrictUndefined
-
-
 
 
 @app.route('/')
@@ -35,7 +35,6 @@ def index():
 
 
 @app.route('/sign_up', methods=['GET'])
-
 def show_sign_up_form():
     """Shows sign up form."""
 
@@ -44,7 +43,6 @@ def show_sign_up_form():
 
 
 @app.route('/sign_up', methods=['POST'])  
-
 def  submit_sign_up_form():
     """ Submits sign up form."""
 
@@ -82,7 +80,6 @@ def submit_login_form():
     user = User.query.filter_by(email=email, password=password).first()
     print(user)
     if user:
-        flash("Hi {}!".format(user.name))
         session['user_id'] = user.user_id
         return redirect('/')
     else:
@@ -90,20 +87,60 @@ def submit_login_form():
         return redirect('/sign_up')
     
 
-    return "You are logged in."
 
 
+@app.route('/my_account')
+def show_form():
+    yelp_id=request.args.get('yelp_id')
+    name = request.args.get('name')
+    user = User.query.get(session['user_id'])
 
+    return render_template('my_account.html', user=user, yelp_id=yelp_id)
+
+
+@app.route('/save', methods=["POST"])   
+def save_places():
+
+    yelp_id=request.form.get('yelp_id')
+    name = request.form.get('name')
+    user = User.query.get(session['user_id'])
+    print(request.form)
+    # check if restaurant in db and create it if not
+
+    
+    restaurant = Restaurants.query.get(yelp_id)
+    if restaurant is None:
+        restaurant = Restaurants(yelp_id=yelp_id, name=name)
+        db.session.add(restaurant)
+        flash("This places is saved to your account")
+          
+    # save the place
+    d=datetime.now()
+    save_date=(d.strftime("%A, %B, %d, %Y"))
+    new_saved_place = Saved_places(place=restaurant, user=user, save_date=save_date)
+    if new_saved_place is None:
+        db.session.add(new_saved_place)
+        db.session.commit()
+        places = user.saved
+        print('###################')
+        print(places)
+        print('###################')
+
+        return "The place was saved to your account"
+    else:
+        return "It already exit in your account"    
+
+    
 
 @app.route('/logout')
 def logout():
-    if 'email' in session:
-        session.pop('email', None)
+    if 'user_id' in session:
+        session.pop('user_id', None)
         flash('You are now logged out')
         return redirect('/')
     else:
         flash('You are not logged in')
-        return redirect('/login')        
+        return redirect('/')        
 
 
 
@@ -121,24 +158,26 @@ def show_results():
 
 
     if search:
-        params = {
+        params = { 
                    'term': search,
                    'location': address,
                    }   
 
         headers = {'Authorization': 'Bearer ' + API_KEY}
 
-        response = requests.get(YELP_URL,
+        response = requests.get(YELP_URL + 'search?categories=vegan,vegetarian',
                                 params=params,
                                 headers=headers)
         print(f"response.url = {response.url}")
-        data = response.json()    
+        data = response.json()   
+        print(data.keys()) 
 
         # import pdb; pdb.set_trace()
 
         if response.ok:
             for i in data['businesses']:
                 print(i['name'])
+                print(i['image_url'])
             places = data['businesses']
 
         else:
@@ -151,25 +190,75 @@ def show_results():
 
 @app.route('/results')    
 def show_indiv_result():
-    
 
-    params = {
-               'id': id,
-               }   
 
+    yelp_id=request.args.get('id')
+    name = request.args.get('name') 
+    locations=request.args.get('location')
+    photos=request.args.get('photos')
+    phone=request.args.get('phone')
+    price = request.args.get('price')
+    categories=request.args.get('categories')
+    ratings=request.args.get('rating')
+    hours=request.args.get('hours')
     headers = {'Authorization': 'Bearer ' + API_KEY}
-
-    response = requests.get(YELP_URL,
-                            params=params,
+    response = requests.get(YELP_URL + yelp_id,
                             headers=headers)
     print(f"response.url = {response.url}")
     data = response.json()  
+    print(data.keys())
 
-    places= data['businesses']
+    print(type(data['hours']))
+    print(type(data['hours'][0]))
+    print(data['hours'][0]['open'])
+    hours_operations = data['hours'][0]['open']
+    hours_strings = []
 
+    for i in hours_operations:
+        if i != False:
+            if i['day'] == 1:
+                i['day']='Mon'
+            elif i['day'] == 2:
+                i['day']='Tue'
+            elif i['day'] == 3:
+                i['day']='Wed'
+            elif i['day'] == 4:
+                i['day']='Thu'
+            elif i['day'] == 5:
+                i['day']='Fri' 
+            elif i['day'] == 6:
+                i['day']='Sat'
+            elif i['day'] == 0:
+                i['day']='Sun' 
+            print(i['day'], i['start'], i['end']) 
+            print(type(i['day']))  
 
+            end = int(i['end'])
 
-    return render_template("indiv_result.html", data=pformat(data), id=yelp_id)
+            start = int(i['start'])
+            start = int(start/100)
+            if end > 1200:
+                end = int((end - 1200)/100) 
+                hours_strings.append("{} {} - {}".format(i['day'], start, end))
+        
+
+   
+
+    yelp_id=data['id']
+    photos=data['photos']
+    locations=data['location']
+    phone=data['phone']
+    if price:
+        price=data['price']
+    categories=data['categories']
+    rating=data['rating']
+    hours=data['hours']
+    # return jsonify(data)
+    return render_template("indiv_result.html", name=name, price=price, yelp_id=yelp_id,
+                            photos=photos, locations=locations, phone=phone,
+                            categories=categories, rating=rating,
+                             hours_strings=hours_strings) 
+                            
 
 
 
