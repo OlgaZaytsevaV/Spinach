@@ -24,13 +24,28 @@
 </ul>           
     <h5><a href="tel:{{phone}}">{{phone}}</a></h5>
 <ul>
+    {% if "user_id" in session %}
     <form action="/save" id="myform" method="POST">
         <input  type="text" id="name" value="{{name}}" name="name" hidden="hidden">
         <input  type="text" id="yelp_id" value="{{yelp_id}}" name="yelp_id" hidden="hidden">
         <button type="submit" id="savebutton" name="save" value="save">Save this place</button>
-    </form> 
+    </form>
+    <div class="container">
+    <div class="row">
+    <div class="col-lg-12">
+      <div class="star-rating">
+        <span class="fa fa-star-o" data-rating="1" data-clearable="remove"/></span>
+        <span class="fa fa-star-o" data-rating="2" data-clearable="remove"/></span>
+        <span class="fa fa-star-o" data-rating="3" data-clearable="remove"/></span>
+        <span class="fa fa-star-o" data-rating="4" data-clearable="remove"/></span>
+        <span class="fa fa-star-o" data-rating="5" data-clearable="remore"/></span>
+      </div>
+    </div>
+  </div> 
+ </ul>
+    {% endif %} 
 
-    <script>
+<script>
 
         // let button = document.querySelector("#myform");
         // function alertClick(evt) {
@@ -59,23 +74,8 @@
         // select button
         // add event listener to button with submitPlace as callback
         // submit Place should make a post ajax request to the server.
+</script>
 
-
-
-    </script>  
-</ul>
-<div class="container">
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="star-rating">
-        <span class="fa fa-star-o" data-rating="1" data-clearable="remove"/></span>
-        <span class="fa fa-star-o" data-rating="2" data-clearable="remove"/></span>
-        <span class="fa fa-star-o" data-rating="3" data-clearable="remove"/></span>
-        <span class="fa fa-star-o" data-rating="4" data-clearable="remove"/></span>
-        <span class="fa fa-star-o" data-rating="5" data-clearable="remore"/></span>
-      </div>
-    </div>
-  </div>
   <style>
           .star-rating {
           line-height:40px;

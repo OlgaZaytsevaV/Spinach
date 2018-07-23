@@ -5,7 +5,7 @@ import requests
 from pprint import pprint, pformat
 import os
 from datetime import datetime
-from collections import defaultdict
+
 
 
 
@@ -111,14 +111,12 @@ def save_places():
     restaurant = Restaurants.query.get(yelp_id)
     if restaurant is None:
         restaurant = Restaurants(yelp_id=yelp_id, name=name)
-        db.session.add(restaurant)
-        flash("This places is saved to your account")
-          
+        db.session.add(restaurant) 
     # save the place
-    d=datetime.now()
-    save_date=(d.strftime("%A, %B, %d, %Y"))
-    new_saved_place = Saved_places(place=restaurant, user=user, save_date=save_date)
-    if new_saved_place is None:
+        d=datetime.now()
+        save_date=(d.strftime("%A, %B, %d, %Y"))
+        new_saved_place = Saved_places(place=restaurant, user=user, save_date=save_date)
+        new_saved_place 
         db.session.add(new_saved_place)
         db.session.commit()
         places = user.saved
@@ -128,9 +126,7 @@ def save_places():
 
         return "The place was saved to your account"
     else:
-        return "It already exit in your account"    
-
-    
+        return " It already exists in your account"    
 
 @app.route('/logout')
 def logout():
