@@ -7,11 +7,11 @@
      {% for place in places %} 
      <table >
        <tr>
-            <th style="width:100px"></th>
-            <th style="width:100px"></th>
+            <th style="width:200px"></th>
+            <th style="width:200px"></th>
         </tr>
     <tr>        
-    <td ><img src ="{{place.image_url}}" style=" display: block; width:30%"/>
+    <td style=""><img src ="{{place.image_url}}" style=" display: block; width:200px; height:200px; object-fit:cover"/>
     <a href="/results?id={{place.id}}&name={{place.name}}">{{place.name}}</a></td>
    </tr><br>
  </table> 

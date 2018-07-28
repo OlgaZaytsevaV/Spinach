@@ -83,7 +83,7 @@ def submit_login_form():
         session['user_id'] = user.user_id
         return redirect('/')
     else:
-        flash("User with email: {} does not exist please sign up.".format(email))
+        flash("User with email does not exist please sign up.")
         return redirect('/sign_up')
     
 
@@ -91,11 +91,14 @@ def submit_login_form():
 
 @app.route('/my_account')
 def show_form():
-    yelp_id=request.args.get('yelp_id')
+   
     name = request.args.get('name')
     user = User.query.get(session['user_id'])
+  
 
-    return render_template('my_account.html', user=user, yelp_id=yelp_id)
+
+    return render_template('my_account.html', user=user, ratings=user.ratings)
+       
 
 
 @app.route('/save', methods=["POST"])   
@@ -109,25 +112,114 @@ def save_places():
 
     
     restaurant = Restaurants.query.get(yelp_id)
+    print("################## restaurant_is saved to db")
     if restaurant is None:
         restaurant = Restaurants(yelp_id=yelp_id, name=name)
+        print("################ restaurant is not saved to db")
         db.session.add(restaurant) 
-    # save the place
+
+    # saving a restautant to saved table    
+    #1. we query to check if it saved to the table saved:
+    new_saved_place = Saved_places.query.filter_by(yelp_id=yelp_id, user_id=user.user_id).first()
+    print("########################")
+    print("######## place is saved in Saved")
+    print(new_saved_place)
+    print("####### place is saved in Saved")
+    #2. if it not saved to the table "saved":
+    if new_saved_place is None:
         d=datetime.now()
         save_date=(d.strftime("%A, %B, %d, %Y"))
         new_saved_place = Saved_places(place=restaurant, user=user, save_date=save_date)
-        new_saved_place 
+        print("########################")
+        print("########## wasn't in  Saved")
+        print(new_saved_place)
+        print("########## wasn't in  Saved")
+        places = user.saved
         db.session.add(new_saved_place)
         db.session.commit()
-        places = user.saved
+        
         print('###################')
         print(places)
         print('###################')
 
         return "The place was saved to your account"
-    else:
-        return " It already exists in your account"    
 
+    else:
+        return " It already exists in your account"   
+
+
+@app.route('/ratings', methods=['POST'])  
+def save_rating():
+
+    yelp_id=request.form.get('yelp_id')
+    name = request.form.get('name')
+    score = request.form.get('rating')
+    user = User.query.get(session['user_id'])
+
+    print("###########lalalal")
+    print(score)
+    print("###########lalalla")
+    #check if place is saved, if not create :
+
+    restaurant = Restaurants.query.get(yelp_id)
+    print("###########exists")
+    print(restaurant)
+    print("##########exists")
+    if restaurant is None:
+        restaurant = Restaurants(yelp_id=yelp_id, name=name)
+        print("######## new")
+        print(restaurant)
+        print("########### new")
+        db.session.add(restaurant)
+        db.session.commit()
+    print("#########") 
+    print(restaurant) 
+    print("#########s")  
+    
+    saved_place = Saved_places.query.filter_by(yelp_id=yelp_id, user_id=user.user_id).first()
+    print(saved_place)
+    print("##########exists in saved table")
+    if saved_place is None:
+        d=datetime.now()
+        save_date=(d.strftime("%A, %B, %d, %Y"))
+        saved_place = Saved_places(user=user, place=restaurant, save_date=save_date)
+        db.session.add(saved_place)
+        db.session.commit()
+        print("##########create a new saved place ")
+        print(saved_place)
+
+    print(saved_place)
+    print("##########")
+
+    # create score
+    #1. Check if it is in DB already:
+    rating = Rating.query.filter_by(yelp_id=yelp_id, user=user).first()
+    print("############ score")
+    print(rating)
+    print("############# score")
+    if rating is None:
+        #db.session.add_all([restaurant, user, saved_place])
+
+        rating = Rating(score=score, place=restaurant, user=user, saved=saved_place)
+        db.session.add(rating)
+        db.session.commit()
+        print("########## rating obj")
+        print(rating)
+    else:
+        rating.score = score
+        print("######### rating.score")
+        print(rating.score)
+        return "You have rated this place already"  
+    return "Rating is submited"
+    
+    db.session.commit()
+    print(rating)
+  
+    return "Rating added"
+
+    
+
+            
 @app.route('/logout')
 def logout():
     if 'user_id' in session:
@@ -140,7 +232,7 @@ def logout():
 
 
 
-@app.route('/search' )
+@app.route('/search')
 def show_results():
     """Shows search results in json."""
 
@@ -186,27 +278,19 @@ def show_results():
 
 @app.route('/results')    
 def show_indiv_result():
+    
+    yelp_id = request.args.get('id')
+    name = request.args.get('name')     
 
-
-    yelp_id=request.args.get('id')
-    name = request.args.get('name') 
-    locations=request.args.get('location')
-    photos=request.args.get('photos')
-    phone=request.args.get('phone')
-    price = request.args.get('price')
-    categories=request.args.get('categories')
-    ratings=request.args.get('rating')
-    hours=request.args.get('hours')
     headers = {'Authorization': 'Bearer ' + API_KEY}
     response = requests.get(YELP_URL + yelp_id,
                             headers=headers)
+   
     print(f"response.url = {response.url}")
     data = response.json()  
     print(data.keys())
+    print("############")
 
-    print(type(data['hours']))
-    print(type(data['hours'][0]))
-    print(data['hours'][0]['open'])
     hours_operations = data['hours'][0]['open']
     hours_strings = []
 
@@ -229,31 +313,48 @@ def show_indiv_result():
             print(i['day'], i['start'], i['end']) 
             print(type(i['day']))  
 
-            end = int(i['end'])
+            # end = int(i['end'])
 
-            start = int(i['start'])
-            start = int(start/100)
-            if end > 1200:
-                end = int((end - 1200)/100) 
-                hours_strings.append("{} {} - {}".format(i['day'], start, end))
-        
+            # start = int(i['start'])
+            # start = int(start/100)
+            # if end > 1200:
+            #     end = int((end - 1200)/100) 
+                # hours_strings.append("{} {} - {}".format(i['day'], start, end))
 
-   
+    days={}
+    d=data['hours'][0]['open']
+    for i in d:
+        day=i['day']
+        start=i['start']
+        end=i['end']
+        end = int(i['end'])
+        start = int(i['start'])
+        start = int(start/100)
+        if end > 1200:
+            end = int((end - 1200)/100) 
+        if day not in days:
+            days[day]={}
+            days[day]['hours']=[]
+            days[day]['hours'].append((start, end))
+        else:
+            days[day]['hours'].append((start, end))
+    print(days)    
 
     yelp_id=data['id']
     photos=data['photos']
     locations=data['location']
     phone=data['phone']
-    if price:
-        price=data['price']
+    price=data.get('price')
     categories=data['categories']
     rating=data['rating']
     hours=data['hours']
+    is_open_now=data['hours'][0]['is_open_now']
+
     # return jsonify(data)
     return render_template("indiv_result.html", name=name, price=price, yelp_id=yelp_id,
                             photos=photos, locations=locations, phone=phone,
-                            categories=categories, rating=rating,
-                             hours_strings=hours_strings) 
+                            categories=categories, rating=rating, hours_strings=hours_strings,
+                            days=days, is_open_now=is_open_now) 
                             
 
 
@@ -267,6 +368,6 @@ if __name__ == "__main__":
   
 
     # Use the DebugToolbar
-    DebugToolbarExtension(app)
+    #DebugToolbarExtension(app)
 
     app.run(host="0.0.0.0", debug=True)

@@ -2,23 +2,44 @@
 {% block title %}my_account{% endblock %}
 {% block content %}
 <h3>Hello, {{ user.name }}</h3>
-<h4> Here is your saved places:</h4>
+<h4>Saved places:</h4>
 <table style="width:100%" text-align="center">
-<tr>
-    <th></th>
-    <th></th>
-    <th></th>
+<tr >
+    <th>Name</th>
+    <th>Save Date</th>
+    <th>Rating</th>
     <th></th>
 </tr>
 <!-- for loop goes here: one row per place, for place in places...-->
 {% for saved in user.saved %}
-<tr>    
-    <td>{{saved.place.name}}</td>
-    <td>{{saved.user_id}}</td>
+<tr> 
+     
+    <td><a href="/results?id={{saved.yelp_id}}&name={{saved.place.name}}">{{saved.place.name}}</a></td>
     <td>{{saved.save_date}}</td>
-    <td>{{saved.yelp_id}}</td>
+
+    <td>{% if saved.rating %}{{saved.rating.score}}{% endif %}</td>   
 </tr>
 {% endfor %}
-</table>
+
+</table>   
+
+
+<!-- </table>
+<h4>Rated places</h4>
+<table style="width:100%" text-align="center">
+<tr >
+    <th></th>
+    <th></th>
+    <th></th>
+</tr>
+{% for rating in ratings %} 
+<tr> 
+    <td></td>
+      <td></td>
+      <td>{{rating.place.name}}</td> 
+      <td>{{rating}}</td>
+    {% endfor %}     
+</tr>
+</table>       -->
 {% endblock %}
  

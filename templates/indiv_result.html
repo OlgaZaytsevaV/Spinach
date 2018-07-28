@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Individual result{% endblock %}
 {% block content %}
-
+<h4>Results</h4>
   
 <div class="container">
     <h2><b>{{name}}</b></h2>
@@ -17,42 +17,40 @@
     {% endfor %}
 </ul>
     <h5>Hours of operation:</h5> 
-<ul>
-    {% for i in hours_strings %}
-        <li>{{ i }}</li>
+<ul>{% for day in days %}</ul>
+    
+    <li>{{day}}: {% for i in days[day]['hours'] %} <ul>{{i[0]}} - {{i[1]}}</ul></li>
     {% endfor %}
-</ul>           
+    {% endfor %}
+<ul>
+    {% if is_open_now == True %} 
+    <p style="color: green">Open now</p>  
+    {% else %} 
+    <p style="color: red">Closed now</p>
+    {% endif %}
+ 
+  
+</ul>            
     <h5><a href="tel:{{phone}}">{{phone}}</a></h5>
 <ul>
     {% if "user_id" in session %}
     <form action="/save" id="myform" method="POST">
-        <input  type="text" id="name" value="{{name}}" name="name" hidden="hidden">
-        <input  type="text" id="yelp_id" value="{{yelp_id}}" name="yelp_id" hidden="hidden">
+        <input type="text" id="name" value="{{name}}" name="name" hidden="hidden">
+        <input type="text" id="yelp_id" value="{{yelp_id}}" name="yelp_id" hidden="hidden">
         <button type="submit" id="savebutton" name="save" value="save">Save this place</button>
     </form>
-    <div class="container">
-    <div class="row">
-    <div class="col-lg-12">
-      <div class="star-rating">
-        <span class="fa fa-star-o" data-rating="1" data-clearable="remove"/></span>
-        <span class="fa fa-star-o" data-rating="2" data-clearable="remove"/></span>
-        <span class="fa fa-star-o" data-rating="3" data-clearable="remove"/></span>
-        <span class="fa fa-star-o" data-rating="4" data-clearable="remove"/></span>
-        <span class="fa fa-star-o" data-rating="5" data-clearable="remore"/></span>
-      </div>
+    <form action="/ratings" id="ratings">
+    <div>
+        <input type="text" id="name" value="{{name}}" name="name" hidden="hidden">
+        <input type="text" id="yelp_id" value="{{yelp_id}}" name="yelp_id" hidden="hidden"> 
+        <input type='number' id='rating' name='rating' class="rating rating-loading" data-min="1" data-max="5" data-step="1" value="0" required><br>
     </div>
-  </div> 
+    </form>
+    {% endif %}
  </ul>
-    {% endif %} 
-
 <script>
 
-        // let button = document.querySelector("#myform");
-        // function alertClick(evt) {
-        //     alert("This place was added to your favorites");
-        //     // evt.preventDefault();
-        // }
-        // button.addEventListener('click', alertClick); 
+        
 
        
         // let button = document.querySelector("#myform");  
@@ -74,6 +72,26 @@
         // select button
         // add event listener to button with submitPlace as callback
         // submit Place should make a post ajax request to the server.
+        // function showAlert(results) {
+        //     alert("Hi");
+        // }
+
+        function submitRatings(evt) {
+            console.log("submitRatings");
+            evt.preventDefault();
+            let formInputs = {
+                "yelp_id": $("#yelp_id").val(),
+                "name": $("#name").val(),
+                "rating" : $("#rating").val(),
+            };
+            $.post('/ratings', formInputs, showAlert);
+        }
+        $("#ratings").on('click', submitRatings);   
+
+
+
+   
+
 </script>
 
   <style>
@@ -83,11 +101,18 @@
         }
         .star-rating .fa-star{color: yellow;}
   </style>
-  <script>
-  // onclick change attributes
-   
+   <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script>
+    $( document ).ready(function() {
+        console.log( "document loaded" );
+    });
+ 
+    $( window ).on( "load", function() {
+        console.log( "window loaded" );
+    });
+    </script>
 
-  </script>
+
 
     <h5>Price:{{price}}</h5>
     {% for i in photos %}

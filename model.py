@@ -32,7 +32,7 @@ class Rating(db.Model):
     __tablename__ = 'ratings'
 
     rating_id = db.Column(db.Integer, primary_key=True, autoincrement=True,)
-    saved_place_id=db.Column(db.Integer, db.ForeignKey('saved.saved_place_id'))
+    saved_place_id=db.Column(db.Integer, db.ForeignKey('saved.saved_place_id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     score=db.Column(db.Float, nullable=False,)
     yelp_id=db.Column(db.String(25), db.ForeignKey('places.yelp_id'))
@@ -43,7 +43,7 @@ class Rating(db.Model):
     user = db.relationship('User')
 
     def __repr__(self):
-        return '< Rating %r>' % self.score
+        return '{} {} {} {}'.format(self.score, self.yelp_id, self.user_id, self.saved_place_id)
 
 
 class User(db.Model):
@@ -73,12 +73,65 @@ class Saved_places(db.Model):
     yelp_id=db.Column(db.String(25), db.ForeignKey('places.yelp_id'))
     save_date=db.Column(db.Date, nullable=False,)
 
-    ratings=db.relationship('Rating')
+    rating=db.relationship('Rating', uselist=False)
     place = db.relationship('Restaurants')
     user= db.relationship('User')
 
     def __repr__(self):
         return '<Saved_places %r>' % self.save_date
+
+
+
+def example_data():
+    #Create some sample data"
+    #In case if this run more then once, empty out existing data
+    # Restaurants.query.delete()
+    # Rating.query.delete()
+    # User.query.delete()
+    # Saved_places.query.delete()
+
+    d = datetime.now()
+    save_date=(d.strftime("%A, %B, %d, %Y"))
+
+    #table Places:
+    place_1= Restaurants(yelp_id = "1inirbvir", name="Name_1")
+    place_2= Restaurants(yelp_id = "534262890", name="Name_1")
+    place_3= Restaurants(yelp_id = "124354567", name="Name_3")
+
+    #table User:
+
+    user_1 = User(name='Olga', email='olg@gmail.com', password="123")
+    user_2 = User(name='Vic', email='Vic@gmail.com', password="12")
+    user_3 = User(name='Andres', email='andres@gmail.com', password="321")
+
+    #table Saved_places:
+    saved_place_1 =Saved_places(user=user_1, place=place_1,
+                                save_date=save_date)
+
+    saved_place_2 =Saved_places(user_id='2', yelp_id="1inirbvir",
+                                save_date=save_date)
+    saved_place_3 =Saved_places(user_id='3', yelp_id="534262890",
+                                save_date=save_date)
+    saved_place_4 =Saved_places(user_id='1', yelp_id="124354567",
+                                save_date=save_date)
+
+    # table Ratings:
+
+    rating_1 = Ratings(score="3", user=user_1, place=place_1, 
+                       saved=saved_place_1)
+
+    rating_2 = Ratings(rating_id="2", saved_place_id="3", user_id="3", score="5",
+                       yelp_id="534262890")
+    rating_3 = Ratings(rating_id="3", saved_place_id="2", user_id="2", score="2",
+                       yelp_id="1inirbvir")
+    rating_4 = Ratings(rating_id="4", saved_place_id="4", user_id="1", score="4",
+                       yelp_id="124354567")
+
+    db.session.add_all([place_1, place_2, place_3, user_1, user_2, user_3, 
+                        saved_place_1, saved_place_2, saved_place_3,
+                        saved_place_4, rating_1, rating_2, rating_3, rating_4])
+    db.session.commit()
+
 
 
 if __name__ == '__main__':
