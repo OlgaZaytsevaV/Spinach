@@ -5,11 +5,6 @@ import requests
 from pprint import pprint, pformat
 import os
 from datetime import datetime
-
-
-
-
-
 from jinja2 import StrictUndefined
 from flask import Flask, render_template, request, flash, redirect, session
 from flask_debugtoolbar import DebugToolbarExtension
@@ -22,9 +17,10 @@ app = Flask(__name__)
 app.secret_key = "SECRET"
 
 YELP_URL = 'https://api.yelp.com/v3/businesses/'
-# YELP_URL_ID= 'https://api.yelp.com/v3/businesses/{id}'
 API_KEY = os.environ['API_KEY']
 app.jinja_env.undefined = StrictUndefined
+# GOOGLE_MAPS_URL = "https://www.google.com/maps/embed/v1/js?key=API_KEY_GOOGLE"
+# API_KEY_GOOGLE = os.environ['API_KEY_GOOGLE']
 
 
 @app.route('/')
@@ -39,7 +35,6 @@ def show_sign_up_form():
     """Shows sign up form."""
 
     return render_template('sign_up.html') 
-
 
 
 @app.route('/sign_up', methods=['POST'])  
@@ -61,13 +56,11 @@ def  submit_sign_up_form():
         return redirect('/login')
 
 
-
 @app.route('/login', methods =['GET'])
 def show_login_form():
     """Shows log in form."""
     
     return render_template('login.html')
-
 
 
 @app.route('/login', methods =['POST'])   
@@ -87,19 +80,14 @@ def submit_login_form():
         return redirect('/sign_up')
     
 
-
-
-@app.route('/my_account')
+@app.route('/my_account') 
 def show_form():
    
     name = request.args.get('name')
     user = User.query.get(session['user_id'])
   
-
-
     return render_template('my_account.html', user=user, ratings=user.ratings)
        
-
 
 @app.route('/save', methods=["POST"])   
 def save_places():
@@ -108,9 +96,8 @@ def save_places():
     name = request.form.get('name')
     user = User.query.get(session['user_id'])
     print(request.form)
-    # check if restaurant in db and create it if not
 
-    
+    # check if restaurant in db and create it if not    
     restaurant = Restaurants.query.get(yelp_id)
     print("################## restaurant_is saved to db")
     if restaurant is None:
@@ -125,6 +112,7 @@ def save_places():
     print("######## place is saved in Saved")
     print(new_saved_place)
     print("####### place is saved in Saved")
+
     #2. if it not saved to the table "saved":
     if new_saved_place is None:
         d=datetime.now()
@@ -136,12 +124,10 @@ def save_places():
         print("########## wasn't in  Saved")
         places = user.saved
         db.session.add(new_saved_place)
-        db.session.commit()
-        
+        db.session.commit()        
         print('###################')
         print(places)
         print('###################')
-
         return "The place was saved to your account"
 
     else:
@@ -155,12 +141,11 @@ def save_rating():
     name = request.form.get('name')
     score = request.form.get('rating')
     user = User.query.get(session['user_id'])
-
     print("###########lalalal")
     print(score)
     print("###########lalalla")
-    #check if place is saved, if not create :
 
+    #check if place is saved, if not create :
     restaurant = Restaurants.query.get(yelp_id)
     print("###########exists")
     print(restaurant)
@@ -174,8 +159,7 @@ def save_rating():
         db.session.commit()
     print("#########") 
     print(restaurant) 
-    print("#########s")  
-    
+    print("#########s")     
     saved_place = Saved_places.query.filter_by(yelp_id=yelp_id, user_id=user.user_id).first()
     print(saved_place)
     print("##########exists in saved table")
@@ -187,7 +171,6 @@ def save_rating():
         db.session.commit()
         print("##########create a new saved place ")
         print(saved_place)
-
     print(saved_place)
     print("##########")
 
@@ -215,9 +198,7 @@ def save_rating():
     db.session.commit()
     print(rating)
   
-    return "Rating added"
-
-    
+    return "Rating added"    
 
             
 @app.route('/logout')
@@ -228,10 +209,26 @@ def logout():
         return redirect('/')
     else:
         flash('You are not logged in')
-        return redirect('/')        
+        return redirect('/')    
 
 
-
+def search_helper(term, location):
+    """Uses external API to get search results"""
+    params = { 
+               'term': term,
+               'location': location,
+               }   
+       
+    headers = {'Authorization': 'Bearer ' + API_KEY}
+    response = requests.get(YELP_URL + 'search?categories=vegan,vegetarian',
+                               params=params,
+                               headers=headers)
+    if response.ok:
+        return response.json()
+    else:
+        return None
+   
+   
 @app.route('/search')
 def show_results():
     """Shows search results in json."""
@@ -239,122 +236,115 @@ def show_results():
     search = request.args.get('search')
     query = request.args.get('query')
     address=request.args.get('address')
-    # if not search:
-    #     places = []
-    # else:
-    #     places= Restaurants.query.filter(Restaurants.name.like('%' + search + '%')).all()
-
-
     if search:
-        params = { 
-                   'term': search,
-                   'location': address,
-                   }   
-
-        headers = {'Authorization': 'Bearer ' + API_KEY}
-
-        response = requests.get(YELP_URL + 'search?categories=vegan,vegetarian',
-                                params=params,
-                                headers=headers)
-        print(f"response.url = {response.url}")
-        data = response.json()   
+        data = search_helper(search, address)   
         print(data.keys()) 
-
-        # import pdb; pdb.set_trace()
-
-        if response.ok:
+        if data: 
+           
             for i in data['businesses']:
+                print("########tata")
+                # print(data['businesses'])
                 print(i['name'])
                 print(i['image_url'])
+                print(i['coordinates'])
+                print(type(i['coordinates']['latitude']))
+                print(i['coordinates']['longitude'])
             places = data['businesses']
-
+            print(type(places))
+           
         else:
             places = []
-
         return render_template("search.html", places=places,
                                data=pformat(data))    
 
 
+def results_helper(yelp_id, name):
+    """Uses external API to get results based in yelp_id and name of the place"""
+
+    headers = {'Authorization': 'Bearer ' + API_KEY}
+    response = requests.get(YELP_URL + yelp_id,
+                            headers=headers)
+
+    if response.ok:
+        return response.json()
+    else:
+        return None
+   
 
 @app.route('/results')    
 def show_indiv_result():
     
     yelp_id = request.args.get('id')
-    name = request.args.get('name')     
+    name = request.args.get('name') 
+    data = results_helper(yelp_id, name)   
+    print(data.keys()) 
+    if data:
 
-    headers = {'Authorization': 'Bearer ' + API_KEY}
-    response = requests.get(YELP_URL + yelp_id,
-                            headers=headers)
-   
-    print(f"response.url = {response.url}")
-    data = response.json()  
-    print(data.keys())
-    print("############")
+        hours_operations = data['hours'][0]['open']
+        hours_strings = []
 
-    hours_operations = data['hours'][0]['open']
-    hours_strings = []
+        for i in hours_operations:
+            if i != False:
+                if i['day'] == 1:
+                    i['day']='Mon'
+                elif i['day'] == 2:
+                    i['day']='Tue'
+                elif i['day'] == 3:
+                    i['day']='Wed'
+                elif i['day'] == 4:
+                    i['day']='Thu'
+                elif i['day'] == 5:
+                    i['day']='Fri' 
+                elif i['day'] == 6:
+                    i['day']='Sat'
+                elif i['day'] == 0:
+                    i['day']='Sun' 
+                print(i['day'], i['start'], i['end']) 
+                print(type(i['day'])) 
 
-    for i in hours_operations:
-        if i != False:
-            if i['day'] == 1:
-                i['day']='Mon'
-            elif i['day'] == 2:
-                i['day']='Tue'
-            elif i['day'] == 3:
-                i['day']='Wed'
-            elif i['day'] == 4:
-                i['day']='Thu'
-            elif i['day'] == 5:
-                i['day']='Fri' 
-            elif i['day'] == 6:
-                i['day']='Sat'
-            elif i['day'] == 0:
-                i['day']='Sun' 
-            print(i['day'], i['start'], i['end']) 
-            print(type(i['day']))  
+        days={}
+        d=data['hours'][0]['open']
+        for i in d:
+            day=i['day']
+            start=i['start']
+            end=i['end']
+            end = int(i['end'])
+            start = int(i['start'])
+            start = int(start/100)
+            if end > 1200:
+                end = int((end - 1200)/100) 
+            if day not in days:
+                days[day]={}
+                days[day]['hours']=[]
+                days[day]['hours'].append((start, end))
+            else:
+                days[day]['hours'].append((start, end))
+        print(days)    
 
-            # end = int(i['end'])
-
-            # start = int(i['start'])
-            # start = int(start/100)
-            # if end > 1200:
-            #     end = int((end - 1200)/100) 
-                # hours_strings.append("{} {} - {}".format(i['day'], start, end))
-
-    days={}
-    d=data['hours'][0]['open']
-    for i in d:
-        day=i['day']
-        start=i['start']
-        end=i['end']
-        end = int(i['end'])
-        start = int(i['start'])
-        start = int(start/100)
-        if end > 1200:
-            end = int((end - 1200)/100) 
-        if day not in days:
-            days[day]={}
-            days[day]['hours']=[]
-            days[day]['hours'].append((start, end))
-        else:
-            days[day]['hours'].append((start, end))
-    print(days)    
-
-    yelp_id=data['id']
-    photos=data['photos']
-    locations=data['location']
-    phone=data['phone']
-    price=data.get('price')
-    categories=data['categories']
-    rating=data['rating']
-    hours=data['hours']
-    is_open_now=data['hours'][0]['is_open_now']
+        yelp_id=data['id']
+        photos=data['photos']
+        locations=data['location']['display_address']
+        phone=data['display_phone']
+        price=data.get('price')
+        categories=data['categories']
+        rating=data['rating']
+        hours=data['hours']
+        is_open_now=data['hours'][0]['is_open_now']
+        coordinate_lat =data['coordinates']['latitude']
+        coordinate_long= data['coordinates']['longitude']
+        url=data['url']
+        
+        print("##############")
+        print(coordinate_lat)
+        print(coordinate_long)
+        print("##########")
 
     # return jsonify(data)
     return render_template("indiv_result.html", name=name, price=price, yelp_id=yelp_id,
                             photos=photos, locations=locations, phone=phone,
                             categories=categories, rating=rating, hours_strings=hours_strings,
-                            days=days, is_open_now=is_open_now) 
+                            days=days, is_open_now=is_open_now, coordinate_long=coordinate_long,
+                            coordinate_lat=coordinate_lat, url=url) 
                             
 
 

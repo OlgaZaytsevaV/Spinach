@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Individual result{% endblock %}
 {% block content %}
-<h4>Results</h4>
+
   
 <div class="container">
     <h2><b>{{name}}</b></h2>
@@ -12,9 +12,10 @@
 </ul>
     <h5>Yelp Rating: {{rating}}</h5>
 <ul>
-    {% for i in locations['display_address'] %}
-        {{"{}".format(i)}}
+    {% for i in locations %}
+    {{i}}
     {% endfor %}
+
 </ul>
     <h5>Hours of operation:</h5> 
 <ul>{% for day in days %}</ul>
@@ -32,6 +33,7 @@
   
 </ul>            
     <h5><a href="tel:{{phone}}">{{phone}}</a></h5>
+
 <ul>
     {% if "user_id" in session %}
     <form action="/save" id="myform" method="POST">
@@ -45,12 +47,11 @@
         <input type="text" id="yelp_id" value="{{yelp_id}}" name="yelp_id" hidden="hidden"> 
         <input type='number' id='rating' name='rating' class="rating rating-loading" data-min="1" data-max="5" data-step="1" value="0" required><br>
     </div>
-    </form>
+    </form> 
     {% endif %}
- </ul>
-<script>
+     </div>
 
-        
+<script>
 
        
         // let button = document.querySelector("#myform");  
@@ -68,15 +69,8 @@
             
         }
         $("#myform").on('submit', submitPlace);
-        //button.addEventListener('submit', submitPlace);
-        // select button
-        // add event listener to button with submitPlace as callback
-        // submit Place should make a post ajax request to the server.
-        // function showAlert(results) {
-        //     alert("Hi");
-        // }
 
-        function submitRatings(evt) {
+            function submitRatings(evt) {
             console.log("submitRatings");
             evt.preventDefault();
             let formInputs = {
@@ -86,21 +80,24 @@
             };
             $.post('/ratings', formInputs, showAlert);
         }
-        $("#ratings").on('click', submitRatings);   
-
-
-
+        $("#ratings").on('click', submitRatings); 
    
 
 </script>
 
   <style>
-          .star-rating {
-          line-height:40px;
-          font-size:1.5em;
-        }
-        .star-rating .fa-star{color: yellow;}
-  </style>
+        .star-rating {
+            line-height:40px;
+            font-size:1.5em;
+        };
+        .star-rating .fa-star{
+            color: yellow;
+        };
+
+        #map {
+            height: 800px;
+        };
+    </style>
    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script>
     $( document ).ready(function() {
@@ -110,14 +107,93 @@
     $( window ).on( "load", function() {
         console.log( "window loaded" );
     });
+
     </script>
-
-
 
     <h5>Price:{{price}}</h5>
     {% for i in photos %}
         <li><img src ="{{i}}" style="width: 30%; height: 30%" /></li><br>
     {% endfor %}
+    <head>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 50%;
+        width: 50%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+       #floating-panel {
+        position: absolute;
+        top: 10px;
+        left: 25%;
+        z-index: 5;
+        background-color: #fff;
+        padding: 5px;
+        border: 1px solid #999;
+        text-align: center;
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="map"></div>
+    <script>
+    
+      var map;
+      function initMap() {
+        var myLatLng
+        var myLatLng = {lat:{{coordinate_lat}}, lng:{{coordinate_long}}};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          center: myLatLng,
+          zoom: 13
+        });
+       
+         var contentString = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<h3 id="firstHeading" class="firstHeading">{{name}}</h3>'+
+            '<div id="bodyContent">'+
+            '<p><b>{% for i in locations %}{{i}}{% endfor %}</b></p>'+
+            '<p><b><a href="{{phone}}">{{phone}}</a></p>'+
+            '<p><a href="{{url}}">Yelp</a></p>'+
+            '<p><a style="color: green;" href="https://www.google.com/maps/dir/?api=1&destination={{coordinate_lat}},{{coordinate_long}}">Get directions</a></p>'+
+            '</div>'+
+            '</div>'
+
+
+        var infowindow = new google.maps.InfoWindow({
+          content: contentString,
+          maxWidth: 300
+
+        });
+
+         var marker = new google.maps.Marker({
+          map: map,
+          position: myLatLng,
+          title:'{{name}}'
+        });
+
+          marker.addListener('click', function() {
+          infowindow.open(map, marker);
+        });
+      }        
+      
+    </script>
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAmhzGsj1KoWF_Tfwe09fMvDuL1sHj8A-g&callback=initMap"
+    async defer></script>
+
+  </body>
     
 {% endblock %}
 

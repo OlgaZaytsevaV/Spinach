@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -7,6 +8,7 @@ def connect_to_db(app, db_name):
     """Connect to database"""
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///' + db_name
     app.config['SQLALCHEMY_ECHO'] = True
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app=app
     db.init_app(app)
 
@@ -95,7 +97,7 @@ def example_data():
 
     #table Places:
     place_1= Restaurants(yelp_id = "1inirbvir", name="Name_1")
-    place_2= Restaurants(yelp_id = "534262890", name="Name_1")
+    place_2= Restaurants(yelp_id = "534262890", name="Name_2")
     place_3= Restaurants(yelp_id = "124354567", name="Name_3")
 
     #table User:
@@ -107,25 +109,24 @@ def example_data():
     #table Saved_places:
     saved_place_1 =Saved_places(user=user_1, place=place_1,
                                 save_date=save_date)
-
-    saved_place_2 =Saved_places(user_id='2', yelp_id="1inirbvir",
+    saved_place_2 =Saved_places(user=user_2, place=place_1,
                                 save_date=save_date)
-    saved_place_3 =Saved_places(user_id='3', yelp_id="534262890",
+    saved_place_3 =Saved_places(user=user_3, place=place_2,
                                 save_date=save_date)
-    saved_place_4 =Saved_places(user_id='1', yelp_id="124354567",
+    saved_place_4 =Saved_places(user=user_1, place=place_3,
                                 save_date=save_date)
 
     # table Ratings:
 
-    rating_1 = Ratings(score="3", user=user_1, place=place_1, 
+    rating_1 = Rating(score="3", user=user_1, place=place_1, 
                        saved=saved_place_1)
-
-    rating_2 = Ratings(rating_id="2", saved_place_id="3", user_id="3", score="5",
-                       yelp_id="534262890")
-    rating_3 = Ratings(rating_id="3", saved_place_id="2", user_id="2", score="2",
-                       yelp_id="1inirbvir")
-    rating_4 = Ratings(rating_id="4", saved_place_id="4", user_id="1", score="4",
-                       yelp_id="124354567")
+    rating_2 = Rating(score="4",  user=user_2, place=place_1,
+                        saved=saved_place_2)
+    rating_3 = Rating(score="2",  user=user_3, place=place_2,
+                       saved=saved_place_3)
+    rating_4 = Rating(score="3",  user=user_1, place=place_3,
+                       saved=saved_place_4)
+    
 
     db.session.add_all([place_1, place_2, place_3, user_1, user_2, user_3, 
                         saved_place_1, saved_place_2, saved_place_3,
@@ -135,9 +136,9 @@ def example_data():
 
 
 if __name__ == '__main__':
-    
+    db_name = "testdb"
     from server import app
-    connect_to_db(app, 'my_data')
+    connect_to_db(app, db_name)
     db.create_all()
     print("Connected to DB.")
 
