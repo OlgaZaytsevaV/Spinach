@@ -1,73 +1,58 @@
 {% extends "base.html" %}
 {% block title %}search_results{% endblock %}
 {% block content %}
-<h3>Search Results</h3>
-<html>
-<head> 
-  <meta http-equiv="content-type" content="text/html; charset=UTF-8" /> 
-  <script src="http://maps.google.com/maps/api/js?key=AIzaSyAmhzGsj1KoWF_Tfwe09fMvDuL1sHj8A-g" 
-          type="text/javascript"></script>
-</head> 
-<body>
-  <div id="map" style="width: 500px; height: 400px;"></div>
 
-  <script type="text/javascript">
-
-    var locations = [
-    {% for place in places %}
-        {
-            coordinates: {
-                latitude: {{place.coordinates.latitude}},
-                longitude: {{place.coordinates.longitude}},
-            },
-            name: "{{place.name|safe}}",
-            id: '{{place.id}}',
-        },
-    {% endfor %}
-    ];
-
-    var map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 10,
-      center: {lat: (locations[0]['coordinates']['latitude']), lng: (locations[0]['coordinates']['longitude'])},
-      // mapTypeId: google.maps.MapTypeId.ROADMAP
-    });
-
-    var infoWindow = new google.maps.InfoWindow({});
-    var marker, i;
-
-    for (i = 0; i < locations.length; i++) 
-      {  
-        marker = new google.maps.Marker({
-        position: new google.maps.LatLng(locations[i]['coordinates']['latitude'], locations[i]['coordinates']['longitude']),
-        map: map,
-        title: locations[i]['name']
-      });
-      contentString = locations[i]['name'];
-     // Allow each marker to have an info window    
-        google.maps.event.addListener(marker, 'click', (function(marker, i) {
-            return function() {
-                infoWindow.setContent(contentString);
-                infoWindow.open(map, marker);
-            }
-        })(marker, i));
-    }
-  </script>
-</body>
-</html>
-
-<form action='/search'>
-<div class="container-fluid bg-3 text-center">
- 
+<div class="container"> 
   <div class="row">
-   {% for place in places %}    
-    <div class="col-sm-3">
-      <p><a href="/results?id={{place.id}}&name={{place.name}}">{{place.name}}</a></p>
-      <img src="{{place.image_url}}" style=" display: block; width:200px; height:200px; object-fit:cover">
-    </div>
-  {% endfor %} 
-  </div> 
+    <h2 style="text-align: center; ">Search Results</h2>
   </div>
-</form>
+    <form action='/search'>
+  <div class="row">
+     {% for place in places %} 
+    <div class="col-xs-18 col-sm-4 col-md-3">
+      <div class="card">
+        <div class="img">
+        <img src="{{place.image_url}}" style=" display: block; width:200px; height:200px; object-fit:cover">
+        </div><br>
+        <div class="caption">
+          <a style="color: #fff" href="/results?id={{place.id}}&name={{place.name}}">{{place.name}}</a>
+        </div><br>
+      </div>
+    </div>
+      {% endfor %} 
+  </div>
+</form> 
+</div> 
+<style>
+
+body {
+    height: 100%;
+    background-image: url("");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.6);
+    max-width: 200px;
+    margin: 2em;
+    text-align: center;
+    background-color: #5cb85c;
+    
+}
+
+.caption{
+    color: grey;
+    font-size: 14px;
+    text-align: center;
+    height: 30px
+
+}
+
+</style>
+
 
 
 

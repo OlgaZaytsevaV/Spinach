@@ -1,45 +1,137 @@
 {% extends "base.html" %}
 {% block title %}my_account{% endblock %}
 {% block content %}
-<h3>Hello, {{ user.name }}</h3>
-<h4>Saved places:</h4>
-<table style="width:100%" text-align="center">
-<tr >
-    <th>Name</th>
-    <th>Save Date</th>
-    <th>Rating</th>
-    <th></th>
-</tr>
+
+<div id="background">
+    <img src="static/images/72298717_m.jpg">
+</div>
+<div class="container">
+<h4><b>Hello, {{ user.name }}</b></h4>
+<h4><b>Places you saved and rated:</b></h4>
+<section>
+<div class="tbl-header">
+<table cellpadding="0" cellspacing="0" border="0">
+    <thead>
+        <tr>
+            <th>Place</th>
+            <th>Rating</th>
+            <th>Save Date</th>
+        </tr>
+    <thead>
+</table>
+</table>
+</div>        
 <!-- for loop goes here: one row per place, for place in places...-->
-{% for saved in user.saved %}
-<tr> 
-     
-    <td><a href="/results?id={{saved.yelp_id}}&name={{saved.place.name}}">{{saved.place.name}}</a></td>
-    <td>{{saved.save_date}}</td>
 
-    <td>{% if saved.rating %}{{saved.rating.score}}{% endif %}</td>   
-</tr>
-{% endfor %}
+<div class="tbl-content">
+    <table cellpadding="0" cellspacing="0" border="0">
+        <tbody>
+            {% for saved in user.saved %}
+            <tr>
+                <td><a href="/results?id={{saved.yelp_id}}&name={{saved.place.name}}"><b>{{saved.place.name}}</b></a></td>
+                <td><b>{% if saved.rating %}{{saved.rating.score}}{% endif %}</b></td>  
+                <td><b>{{saved.save_date}}</b></td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>  
+</section>
+</div>
 
-</table>   
+
+ 
+<style>
+
+h1, h3{
+  font-size: 30px;
+  color: #31708f;
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 15px;
+}
+h4 {
+  font-size: 20px;
+  color: #31708f ;
+  text-transform: uppercase;
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 15px;
+
+}
+table{
+  width:100%;
+  table-layout: fixed;
+}
+.tbl-header{
+  background-color: rgba(235,255,235,0.7);
+ }
+
+.tbl-content{
+  height:400px;
+  overflow-x:auto;
+  margin-top: 0px;
+  border: 1px solid rgba(235,255,240,0.7);
+  background-color: rgba(235,255,240,0.7)
+}
+th{
+  padding: 20px 15px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 16px;
+  color: #31708f;
+  text-transform: uppercase;
+}
+td{
+  padding: 15px;
+  text-align: left;
+  vertical-align:middle;
+  font-weight: 300;
+  font-size:  16px;
+  color: #31708f;
+  border-bottom: solid 1px rgba(235,255,235,0.7);
+}
 
 
-<!-- </table>
-<h4>Rated places</h4>
-<table style="width:100%" text-align="center">
-<tr >
-    <th></th>
-    <th></th>
-    <th></th>
-</tr>
-{% for rating in ratings %} 
-<tr> 
-    <td></td>
-      <td></td>
-      <td>{{rating.place.name}}</td> 
-      <td>{{rating}}</td>
-    {% endfor %}     
-</tr>
-</table>       -->
+/* demo styles */
+
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,500,300,700);
+
+#background img{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: auto;
+   
+}
+section{
+  margin: 50px;
+}
+
+/* for custom scrollbar for webkit browser*/
+
+::-webkit-scrollbar {
+    width: 6px;
+} 
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+} 
+::-webkit-scrollbar-thumb {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+}
+</style>
+<script type="text/javascript">
+// '.tbl-content' consumed little space for vertical scrollbar, scrollbar width depend on browser/os/platfrom. Here calculate the scollbar width .
+$(window).on("load resize ", function() {
+  var scrollWidth = $('.tbl-content').width() - $('.tbl-content table').width();
+  $('.tbl-header').css({'padding-right':scrollWidth});
+}).resize();
+</script>
+
+
+
 {% endblock %}
  

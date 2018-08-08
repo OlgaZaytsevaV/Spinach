@@ -25,7 +25,7 @@ class FlaskTest(TestCase):
 
         result = self.client.get("/login")
         self.assertEqual(result.status_code, 200)
-        self.assertIn(b"<h3>Login In to Your Account</h3>", result.data )
+        self.assertIn(b"""<label for="email" class="text-info">Email</label><br>""", result.data )
    
 
 class FlaskTestDataBase(TestCase):
@@ -46,7 +46,7 @@ class FlaskTestDataBase(TestCase):
     def test_important_page(self):
         """Test my_account page."""  
         result = self.client.get("/my_account")  
-        self.assertIn(b"<h4>Saved places:</h4>", result.data) 
+        self.assertIn(b"<h4><b>Places you saved and rated:</b></h4>", result.data) 
 
 
     def test_login(self):
@@ -55,7 +55,7 @@ class FlaskTestDataBase(TestCase):
                                   data={"email": "email",
                                         "password": "password"},
                                         follow_redirects = True) 
-        self.assertIn(b"<p>Please fill in this form to create an account.</p>", result.data)
+        self.assertIn(b"""<label for="password" class="text-info">Password:</label><br>\n""", result.data)
 
     
     def test_saved_places(self):
@@ -84,7 +84,7 @@ class FlaskTestDataBase(TestCase):
                                       "email":"olg@gmail.com",
                                       "password":"123"}, follow_redirects=True) 
         self.assertEqual(result.status_code, 200)
-        self.assertIn(b"""<button type="submit" class="btn">Sign Up</button>""", result.data)
+        self.assertIn(b"""<input type="submit" name="submit" class="btn btn-info btn-md" value="submit">""", result.data)
 
 
 
@@ -305,8 +305,8 @@ class MockFlaskTest(TestCase):
         """Test search page."""
 
         result = self.client.get("search?search=vegan%2C+vegetarian&address=san+francisco")
-        self.assertIn(b"""<a href="/results?id=rwiL8C8989DlHMD88bxi3A&name=Gracias Madre">Gracias Madre</a>""", result.data) 
-
+        self.assertIn(b"""<a style="color: #fff" href="/results?id=rwiL8C8989DlHMD88bxi3A&name=Gracias Madre">Gracias Madre</a>\n""", result.data) 
+                             
     def tearDown(self):
 
         db.session.remove()

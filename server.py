@@ -82,6 +82,7 @@ def submit_login_form():
 
 @app.route('/my_account') 
 def show_form():
+    """User's page"""
    
     name = request.args.get('name')
     user = User.query.get(session['user_id'])
@@ -91,6 +92,7 @@ def show_form():
 
 @app.route('/save', methods=["POST"])   
 def save_places():
+    """Route to save places on the user's page"""
 
     yelp_id=request.form.get('yelp_id')
     name = request.form.get('name')
@@ -136,6 +138,7 @@ def save_places():
 
 @app.route('/ratings', methods=['POST'])  
 def save_rating():
+    """Rout to create retings for saved places"""
 
     yelp_id=request.form.get('yelp_id')
     name = request.form.get('name')
@@ -203,6 +206,7 @@ def save_rating():
             
 @app.route('/logout')
 def logout():
+    """Logout seccion"""
     if 'user_id' in session:
         session.pop('user_id', None)
         flash('You are now logged out')
@@ -255,7 +259,8 @@ def show_results():
         else:
             places = []
         return render_template("search.html", places=places,
-                               data=pformat(data))    
+                               data=pformat(data))  
+                                
 
 
 def results_helper(yelp_id, name):
@@ -273,13 +278,13 @@ def results_helper(yelp_id, name):
 
 @app.route('/results')    
 def show_indiv_result():
+    """Route for rendering businesses ditails of the place"""
     
     yelp_id = request.args.get('id')
     name = request.args.get('name') 
     data = results_helper(yelp_id, name)   
     print(data.keys()) 
     if data:
-
         hours_operations = data['hours'][0]['open']
         hours_strings = []
 
@@ -310,9 +315,14 @@ def show_indiv_result():
             end=i['end']
             end = int(i['end'])
             start = int(i['start'])
-            start = int(start/100)
+            if start > 1200:
+                start= int((start - 1200)/100)
+            else:
+                start=int(start/100)
             if end > 1200:
-                end = int((end - 1200)/100) 
+                end = int((end - 1200)/100)
+            else:
+                end=int(end/100)
             if day not in days:
                 days[day]={}
                 days[day]['hours']=[]

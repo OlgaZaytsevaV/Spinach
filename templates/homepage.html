@@ -1,37 +1,37 @@
 {% extends "base.html" %}
 {% block title %}Homepage{% endblock %}
 {% block content %}
+<div id="background">
+    <img src="static/images/05_fruits_veggies_better_off_buying_frozen_spinach_Lecic.jpg">
+</div>
+<div class ="intro-text">
+    <p>Spinach</p>
+    <h1>Discover local vegetarian/vegan businesses</h1>
 <style>
 
-body {
-    height: 100%;
-
-
-    /* The image used */
-
-    background-image: url("static/images/05_fruits_veggies_better_off_buying_frozen_spinach_Lecic.jpg");
-
-    /* Full height */
-    height: 100%; 
-
-    /* Center and scale the image nicely */
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-attachment: fixed;
+#background img{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: auto;
+    filter: blur(5px);
 }
 
-</style>
-<!-- <form id="search" action="/search " style="position: absolute;
-    left: 50%;
-    top: 50%; 
-    margin-left: -200px;
-    margin-top: 0px;">
-    <input type="text" placeholder="Search.." name="search">
-    <input type="text" placeholder="Near (City, or Zip Code)" name="address">
-    <button type="submit"><i class="glyphicon glyphicon-search"></i></button>
-</form>  
- -->
+
+.intro-text{
+    font-family: 'Dancing Script', cursive;
+    color: #fff;
+    font-size: 10em;
+    font-weight: 700;
+    margin-top: 0;
+    padding-top: 150px;
+    padding-bottom: 200px;
+    text-align: center;
+}
+
+
   
 {% endblock %}
 
