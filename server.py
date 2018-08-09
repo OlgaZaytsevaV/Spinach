@@ -248,7 +248,6 @@ def show_results():
             for i in data['businesses']:
                 print("########tata")
                 # print(data['businesses'])
-                print(i['name'])
                 print(i['image_url'])
                 print(i['coordinates'])
                 print(type(i['coordinates']['latitude']))
