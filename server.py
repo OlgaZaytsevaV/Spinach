@@ -335,7 +335,6 @@ def show_indiv_result():
         photos=data['photos']
         locations=data['location']['display_address']
         phone=data['display_phone']
-        phone_map=data['phone']
         price=data.get('price')
         categories=data['categories']
         rating=data['rating']
@@ -355,7 +354,7 @@ def show_indiv_result():
                             photos=photos, locations=locations, phone=phone,
                             categories=categories, rating=rating, hours_strings=hours_strings,
                             days=days, is_open_now=is_open_now, coordinate_long=coordinate_long,
-                            coordinate_lat=coordinate_lat, url=url, phone_map=phone_map) 
+                            coordinate_lat=coordinate_lat, url=url) 
                             
 
 
