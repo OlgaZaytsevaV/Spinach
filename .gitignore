@@ -1,0 +1,10 @@
+# Should do not go to github
+
+env
+secrets.sh
+test_env
+.pyc
+.DS_Store
+.coverage
+*.pyc
+flask.log

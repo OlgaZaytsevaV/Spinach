@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Homepage{% endblock %}
+{% block content %}
+<div id="background">
+    <img src="static/images/05_fruits_veggies_better_off_buying_frozen_spinach_Lecic.jpg">
+</div>
+<div class ="intro-text">
+    <p>Spinach</p>
+    <h1>Discover local vegetarian/vegan businesses</h1>
+<style>
+
+#background img{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: auto;
+    filter: blur(5px);
+}
+
+
+.intro-text{
+    font-family: 'Dancing Script', cursive;
+    color: #fff;
+    font-size: 10em;
+    font-weight: 700;
+    margin-top: 0;
+    padding-top: 150px;
+    padding-bottom: 200px;
+    text-align: center;
+}
+
+
+  
+{% endblock %}
+
+
